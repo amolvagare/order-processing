@@ -1,0 +1,27 @@
+# ─── PostgreSQL datasource (production profile) ─────────────────────────────
+spring:
+  # Activate with: java -jar app.jar --spring.profiles.active=prod
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/orderdb"
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # ─── JPA / Hibernate (PostgreSQL) ─────────────────────────────────────────
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # Use 'validate' in prod — schema managed by migrations, not Hibernate
+      ddl-auto: validate
+    show-sql: false
+
+  # ─── Disable H2 console in production ─────────────────────────────────────
+  h2:
+    console:
+      enabled: false
+
+# ─── Logging (less verbose in production) ───────────────────────────────────
+logging:
+  level:
+    com.ecommerce.orderprocessing: INFO
+

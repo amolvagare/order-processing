@@ -1,0 +1,414 @@
+### Order Processing API Test Suite
+
+# Base URL for local development
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+###
+# ==================== CUSTOMER ENDPOINTS ====================
+###
+
+### Create Customer 1 - Alice
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "name": "Alice Johnson",
+  "email": "alice.johnson@example.com"
+}
+
+###
+
+### Create Customer 2 - Bob
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "name": "Bob Smith",
+  "email": "bob.smith@example.com"
+}
+
+###
+
+### Create Customer 3 - Charlie
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "name": "Charlie Brown",
+  "email": "charlie.brown@example.com"
+}
+
+###
+
+### Get Customer by ID (Alice)
+GET {{baseUrl}}/api/customers/1
+Content-Type: {{contentType}}
+
+###
+
+### List All Customers
+GET {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+###
+
+### Update Customer (Alice - change name)
+PUT {{baseUrl}}/api/customers/1
+Content-Type: {{contentType}}
+
+{
+  "name": "Alice M. Johnson",
+  "email": "alice.johnson@example.com"
+}
+
+###
+# ==================== ADDRESS ENDPOINTS ====================
+###
+
+### Add Home Address for Alice (Customer 1)
+POST {{baseUrl}}/api/customers/1/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "home",
+  "addressLine1": "123 Main Street",
+  "addressLine2": "Apt 4B",
+  "city": "Austin",
+  "state": "TX",
+  "postalCode": "73301",
+  "country": "USA"
+}
+
+###
+
+### Add Work Address for Alice (Customer 1)
+POST {{baseUrl}}/api/customers/1/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "work",
+  "addressLine1": "456 Corporate Blvd",
+  "city": "Austin",
+  "state": "TX",
+  "postalCode": "73302",
+  "country": "USA"
+}
+
+###
+
+### Add Home Address for Bob (Customer 2)
+POST {{baseUrl}}/api/customers/2/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "home",
+  "addressLine1": "789 Oak Avenue",
+  "city": "Dallas",
+  "state": "TX",
+  "postalCode": "75201",
+  "country": "USA"
+}
+
+###
+
+### Add Billing Address for Bob (Customer 2)
+POST {{baseUrl}}/api/customers/2/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "billing",
+  "addressLine1": "321 Pine Road",
+  "city": "Fort Worth",
+  "state": "TX",
+  "postalCode": "76102",
+  "country": "USA"
+}
+
+###
+
+### List Addresses for Alice (Customer 1)
+GET {{baseUrl}}/api/customers/1/addresses
+Content-Type: {{contentType}}
+
+###
+
+### List Addresses for Bob (Customer 2)
+GET {{baseUrl}}/api/customers/2/addresses
+Content-Type: {{contentType}}
+
+###
+
+### Remove Work Address for Alice (Customer 1, Address 2)
+### Response: 204 No Content (even if address doesn't exist - idempotent)
+DELETE {{baseUrl}}/api/customers/1/addresses/2
+Content-Type: {{contentType}}
+
+###
+# ==================== ORDER ENDPOINTS ====================
+###
+
+### Create Order 1 - Alice with home address
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 1,
+  "addressId": 1,
+  "items": [
+    {
+      "productName": "Laptop",
+      "quantity": 1,
+      "unitPrice": 999.99
+    },
+    {
+      "productName": "Wireless Mouse",
+      "quantity": 2,
+      "unitPrice": 29.99
+    }
+  ]
+}
+
+###
+
+### Create Order 2 - Bob with home address
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 2,
+  "addressId": 3,
+  "items": [
+    {
+      "productName": "Monitor 27-inch",
+      "quantity": 1,
+      "unitPrice": 349.99
+    },
+    {
+      "productName": "USB-C Cable",
+      "quantity": 3,
+      "unitPrice": 15.99
+    }
+  ]
+}
+
+###
+
+### Create Order 3 - Charlie (needs address first)
+POST {{baseUrl}}/api/customers/3/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "home",
+  "addressLine1": "555 Elm Street",
+  "city": "Houston",
+  "state": "TX",
+  "postalCode": "77001",
+  "country": "USA"
+}
+
+###
+
+### Create Order 3 - Charlie with home address
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 3,
+  "addressId": 5,
+  "items": [
+    {
+      "productName": "Mechanical Keyboard",
+      "quantity": 1,
+      "unitPrice": 149.99
+    },
+    {
+      "productName": "Desk Lamp",
+      "quantity": 1,
+      "unitPrice": 49.99
+    }
+  ]
+}
+
+###
+
+### Get Order by ID (Order 1)
+GET {{baseUrl}}/api/orders/1
+Content-Type: {{contentType}}
+
+###
+
+### List All Orders
+GET {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+###
+
+### List Orders Filtered by Status (PENDING)
+GET {{baseUrl}}/api/orders?status=PENDING
+Content-Type: {{contentType}}
+
+###
+
+### List Orders Filtered by Status (PROCESSING)
+GET {{baseUrl}}/api/orders?status=PROCESSING
+Content-Type: {{contentType}}
+
+###
+
+### Update Order Status - Order 1 to PROCESSING
+PUT {{baseUrl}}/api/orders/1/status
+Content-Type: {{contentType}}
+
+{
+  "status": "PROCESSING"
+}
+
+###
+
+### Update Order Status - Order 2 to SHIPPED
+PUT {{baseUrl}}/api/orders/2/status
+Content-Type: {{contentType}}
+
+{
+  "status": "SHIPPED"
+}
+
+###
+
+### Try to Cancel Non-Pending Order (Should Fail - Order 1 is PROCESSING)
+PUT {{baseUrl}}/api/orders/1/status
+Content-Type: {{contentType}}
+
+{
+  "status": "CANCELLED"
+}
+
+###
+
+### Cancel Pending Order 3 via Status Endpoint
+PUT {{baseUrl}}/api/orders/3/status
+Content-Type: {{contentType}}
+
+{
+  "status": "CANCELLED"
+}
+
+###
+
+### Cancel Order 2 via POST /cancel (Create new PENDING order first)
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 1,
+  "addressId": 1,
+  "items": [
+    {
+      "productName": "USB Hub",
+      "quantity": 1,
+      "unitPrice": 39.99
+    }
+  ]
+}
+
+###
+
+### Cancel Order 4 via DELETE /api/orders/{id} — returns 200 with CANCELLED status (PENDING only)
+DELETE {{baseUrl}}/api/orders/4
+Content-Type: {{contentType}}
+
+###
+
+### Try to Cancel Already-Cancelled Order (Should Return 400)
+DELETE {{baseUrl}}/api/orders/4
+Content-Type: {{contentType}}
+
+###
+
+### Try to Get Cancelled Order (Should Return 200 with CANCELLED status)
+GET {{baseUrl}}/api/orders/4
+Content-Type: {{contentType}}
+
+###
+# ==================== ERROR CASES ====================
+###
+
+### Try to Create Duplicate Customer Email (Should Return 409)
+POST {{baseUrl}}/api/customers
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate User",
+  "email": "alice.johnson@example.com"
+}
+
+###
+
+### Try to Create Order with Non-Existent Customer (Should Return 404)
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 999,
+  "addressId": 1,
+  "items": [
+    {
+      "productName": "Test Item",
+      "quantity": 1,
+      "unitPrice": 10.00
+    }
+  ]
+}
+
+###
+
+### Try to Create Order with Invalid Address (Should Return 404)
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 1,
+  "addressId": 999,
+  "items": [
+    {
+      "productName": "Test Item",
+      "quantity": 1,
+      "unitPrice": 10.00
+    }
+  ]
+}
+
+###
+
+### Try to Create Order with Empty Items (Should Return 400)
+POST {{baseUrl}}/api/orders
+Content-Type: {{contentType}}
+
+{
+  "customerId": 1,
+  "addressId": 1,
+  "items": []
+}
+
+###
+
+### Try to Get Non-Existent Customer (Should Return 404)
+GET {{baseUrl}}/api/customers/999
+Content-Type: {{contentType}}
+
+###
+
+### Try to Add Address to Non-Existent Customer (Should Return 404)
+POST {{baseUrl}}/api/customers/999/addresses
+Content-Type: {{contentType}}
+
+{
+  "label": "test",
+  "addressLine1": "Test St",
+  "city": "Test City",
+  "state": "TS",
+  "postalCode": "00000",
+  "country": "USA"
+}
+

@@ -1,0 +1,39 @@
+# Maven build output
+/target/
+
+# IntelliJ IDEA
+/.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Environment overrides
+.env
+.env.*
+
+# Local database / H2 artifacts
+*.mv.db
+*.trace.db
+
